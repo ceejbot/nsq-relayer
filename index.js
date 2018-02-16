@@ -18,7 +18,7 @@ class NSQRelayer
 	constructor({ nsq = 'http://localhost:4150', topic = 'relayed', event = 'nsq' })
 	{
 		const parsed = url.parse(nsq);
-		this.nsq = new Squeaky({ host: parsed.host });
+		this.nsq = new Squeaky({ host: parsed.hostname, port: parsed.port || 4150 });
 		this.topic = topic;
 		this.eventName = event;
 		this.logger = bole(event);

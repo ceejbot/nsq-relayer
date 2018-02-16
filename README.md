@@ -1,4 +1,4 @@
-# numbat-nsq
+# nsq-relayer
 
 You emit events structured in a specific way and this tool posts them all to its configured nsq instance.
 
