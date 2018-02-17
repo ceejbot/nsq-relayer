@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "bole": "~3.0.2",
-    "squeaky": "~1.2.0"
+    "squeaky": "~1.3.0"
   },
   "devDependencies": {
     "coveralls": "~3.0.0",
