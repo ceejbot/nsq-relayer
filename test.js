@@ -40,7 +40,7 @@ describe('nsq-relayer', () =>
 	it('listens for the configured event', function(done)
 	{
 		const r = createRelayer();
-		r.handleEvent = function(msg)
+		r.handleEvent = function fn(topic, msg)
 		{
 			msg.must.be.an.object();
 			msg.payload.must.equal('hello world');
@@ -64,6 +64,25 @@ describe('nsq-relayer', () =>
 		process.emit('nsq', msg);
 	});
 
+	it('obeys an array relays option', function()
+	{
+		const relays = ['one', 'two', 'three'];
+		const r = createRelayer({ relays });
+		r.must.have.property('events');
+		r.events.must.be.an.object();
+		Object.keys(r.events).length.must.equal(relays.length);
+
+		r.handleEvent = function fn(topic, msg)
+		{
+			topic.must.equal(msg);
+		};
+		const spy = sinon.spy(r, 'handleEvent');
+
+		relays.forEach(t => process.emit(t, t));
+		spy.callCount.must.equal(relays.length);
+		r.close();
+	});
+
 	it('logs on error', function(done)
 	{
 		const r = createRelayer();
@@ -74,10 +93,10 @@ describe('nsq-relayer', () =>
 		const msg = { payload: 'hello world'};
 		var count = 0;
 
-		r.logger.error = function()
+		r.logger.warn = function(logline)
 		{
-			count++;
-			if (count === 2) done();
+			logline.must.match(/wat/);
+			done();
 		};
 		r.handleEvent(msg);
 	});
@@ -98,4 +117,19 @@ describe('nsq-relayer', () =>
 		done();
 	});
 
+	it('close() removes all listeners', function(done)
+	{
+		const relays = ['one', 'two', 'three'];
+		const r = createRelayer({ relays });
+
+		r.nsq.close = function()
+		{
+			process.listeners('one').length.must.equal(0);
+			process.listeners('two').length.must.equal(0);
+			process.listeners('three').length.must.equal(0);
+			done();
+		};
+
+		r.close();
+	});
 });
