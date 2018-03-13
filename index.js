@@ -4,7 +4,7 @@ const
 	bole    = require('bole'),
 	Squeaky = require('squeaky'),
 	url     = require('url')
-	;
+;
 
 module.exports = createRelayer;
 
@@ -15,34 +15,50 @@ function createRelayer(opts = {})
 
 class NSQRelayer
 {
-	constructor({ nsq = 'http://127.0.0.1:4151', topic = 'relayed', event = 'nsq' })
+	constructor({ nsq = 'http://127.0.0.1:4151', topic = 'relayed', event = 'nsq', relays = null })
 	{
 		const parsed = url.parse(nsq);
+		this.dest = nsq;
 		this.nsq = new Squeaky({ host: parsed.hostname, port: parsed.port || 4150 });
-		this.topic = topic;
-		this.eventName = event;
-		this.logger = bole(event);
-		this.handler = msg => this.handleEvent(msg);
-		process.on(event, this.handler);
+		this.logger = bole('nsq-relay');
+		this.events = {};
+
+		if (Array.isArray(relays) && relays.length > 0)
+		{
+			relays.forEach(topic =>
+			{
+				const fn = msg => this.handleEvent(topic, msg);
+				process.on(topic, fn);
+				this.events[topic] = fn;
+			});
+		}
+		else
+		{
+			const fn = msg => this.handleEvent(topic, msg);
+			process.on(event, fn);
+			this.events[event] = fn;
+		}
 	}
 
-	handleEvent(message)
+	handleEvent(topic, message)
 	{
-		this.nsq.publish(this.topic, message).then(resp =>
+		this.nsq.publish(topic, message).then(resp =>
 		{
 			// silence on success
 			this.logger.debug(resp, message);
 		}).catch(err =>
 		{
-			this.logger.error('unexpected problem posting to nsq; dropping event on the floor');
-			this.logger.error(err);
+			this.logger.warn(`error ${err.message} posting to ${topic} at ${this.dest}; dropping message on the floor	`);
 		});
 	}
 
 	close()
 	{
-		this.nsq.close()
-		process.removeListener(this.eventName, this.handler);
+		Object.keys(this.events).forEach(evt =>
+		{
+			process.removeListener(evt, this.events[evt]);
+		});
+		this.nsq.close();
 	}
 }
 

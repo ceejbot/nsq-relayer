@@ -8,15 +8,15 @@
   },
   "dependencies": {
     "bole": "~3.0.2",
-    "squeaky": "~1.4.0"
+    "squeaky": "~1.4.1"
   },
   "devDependencies": {
     "coveralls": "~3.0.0",
     "eslint-config-ceejbot": "~1.1.0",
-    "mocha": "~5.0.1",
+    "mocha": "~5.0.4",
     "must": "~0.13.4",
     "nyc": "~11.4.1",
-    "sinon": "~4.3.0",
+    "sinon": "~4.4.3",
     "xo": "~0.20.3"
   },
   "homepage": "https://github.com/ceejbot/nsq-relayer#readme",
@@ -30,15 +30,17 @@
     "url": "git+https://github.com/ceejbot/nsq-relayer.git"
   },
   "scripts": {
-    "test": "mocha -R spec",
-    "test:cov": "nyc mocha -R spec",
+    "test": "mocha -R spec --exit",
+    "test:cov": "nyc mocha -R spec --exit",
     "test:style": "xo",
     "test:travis": "npm run test:cov && npm run test:style"
   },
   "xo": {
     "extends": "eslint-config-ceejbot",
     "rules": {
-      "prefer-arrow-callback": 0
+      "prefer-arrow-callback": 0,
+      "semi-style": 0,
+      "unicorn/import-index": 0
     }
   }
 }
