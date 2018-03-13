@@ -1,6 +1,8 @@
 # nsq-relayer
 
-You emit events structured in a specific way and this tool posts them all to its configured nsq instance.
+[![Build Status](https://travis-ci.org/ceejbot/nsq-relayer.svg?branch=master)](https://travis-ci.org/ceejbot/nsq-relayer)
+
+You emit events from anywhere in your code and this module posts them all to its configured nsq instance.
 
 ```js
 const createRelayer = require('nsq-relayer');
