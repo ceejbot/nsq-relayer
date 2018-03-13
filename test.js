@@ -40,7 +40,7 @@ describe('nsq-relayer', () =>
 	it('listens for the configured event', function(done)
 	{
 		const r = createRelayer();
-		r.handleEvent = function fn(topic, msg)
+		r.handleEvent = function handleEvent(topic, msg)
 		{
 			msg.must.be.an.object();
 			msg.payload.must.equal('hello world');
@@ -72,7 +72,7 @@ describe('nsq-relayer', () =>
 		r.events.must.be.an.object();
 		Object.keys(r.events).length.must.equal(relays.length);
 
-		r.handleEvent = function fn(topic, msg)
+		r.handleEvent = function handleEvent(topic, msg)
 		{
 			topic.must.equal(msg);
 		};
@@ -91,7 +91,6 @@ describe('nsq-relayer', () =>
 			return Promise.reject(new Error('wat'));
 		};
 		const msg = { payload: 'hello world'};
-		var count = 0;
 
 		r.logger.warn = function(logline)
 		{
